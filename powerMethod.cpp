@@ -39,7 +39,7 @@ tuple<double, VectorXd, int, vector<double>> powerIteration(MatrixXd A, int nite
     return result;
 }
 
-pair<VectorXd, MatrixXd, vector<vector<double>>> eigen(MatrixXd A, int num = 2, int niter = 10000, double epsilon = 1e-6) {
+tuple<VectorXd, MatrixXd, vector<vector<double>>> eigen(MatrixXd A, int num = 2, int niter = 10000, double epsilon = 1e-6) {
     MatrixXd A_copy = A;
     VectorXd eigenvalues(num);
     MatrixXd eigenvectors(A.rows(), num);
@@ -54,7 +54,7 @@ pair<VectorXd, MatrixXd, vector<vector<double>>> eigen(MatrixXd A, int num = 2, 
                     
         A_copy -= ((eigenvalues(i) * eigenvectors.col(i)) * eigenvectors.col(i).transpose());
     }
-    pair<VectorXd, MatrixXd, vector<vector<double>>> result(eigenvalues, eigenvectors, errores);
+    tuple<VectorXd, MatrixXd, vector<vector<double>>> result(eigenvalues, eigenvectors, errores);
     return result;
 }
 
