@@ -11,19 +11,21 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 namespace py = pybind11;
 
-tuple<double, VectorXd, int> powerIteration(MatrixXd A, int niter = 10000, double epsilon = 1e-6) {
+tuple<double, VectorXd, int, vector<double>> powerIteration(MatrixXd A, int niter = 10000, double epsilon = 1e-6) {
     int n = A.rows();
     double eigenvalue;
     VectorXd v(n);
     v.setRandom();
     int pasos = 0;
     VectorXd v_anterior = v;
+    vector<double> errores = {};
     for(int i = 0; i < niter; i++) {
         pasos++;
         v_anterior = v;
         v = A * v;
         v = v / v.norm();
         double norma_infinito = (v_anterior - v).lpNorm<Eigen::Infinity>();
+        errores.push_back(norma_infinito);
         if(norma_infinito < epsilon) {
             cout << "La cantidad de iteraciones fue:" << i << endl;
             break;
@@ -33,23 +35,26 @@ tuple<double, VectorXd, int> powerIteration(MatrixXd A, int niter = 10000, doubl
     }
     eigenvalue = (v.transpose()).dot(A*v);
     eigenvalue = eigenvalue / ((v.transpose()).dot(v));
-    tuple<double, VectorXd, int> result(eigenvalue, v, pasos);
+    tuple<double, VectorXd, int, vector<double>> result(eigenvalue, v, pasos, errores);
     return result;
 }
 
-pair<VectorXd, MatrixXd> eigen(MatrixXd A, int num = 2, int niter = 10000, double epsilon = 1e-6) {
+pair<VectorXd, MatrixXd, vector<vector<double>>> eigen(MatrixXd A, int num = 2, int niter = 10000, double epsilon = 1e-6) {
     MatrixXd A_copy = A;
     VectorXd eigenvalues(num);
     MatrixXd eigenvectors(A.rows(), num);
+    vector<vector<double>> errores = {};
     
     for(int i = 0; i < num; i++) {
-        tuple<double, VectorXd, int> eigens = powerIteration(A_copy, niter, epsilon);
+        tuple<double, VectorXd, int, vector<double>> eigens = powerIteration(A_copy, niter, epsilon);
         eigenvalues(i) = get<0>(eigens);
         eigenvectors.col(i) = get<1>(eigens);
+        vector<double> error = get<2>(eigens);
+        errores.push_back(error);
                     
         A_copy -= ((eigenvalues(i) * eigenvectors.col(i)) * eigenvectors.col(i).transpose());
     }
-    pair<VectorXd, MatrixXd> result = make_pair(eigenvalues, eigenvectors);
+    pair<VectorXd, MatrixXd, vector<vector<double>>> result(eigenvalues, eigenvectors, errores);
     return result;
 }
 
