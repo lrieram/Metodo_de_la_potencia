@@ -49,7 +49,7 @@ tuple<VectorXd, MatrixXd, vector<vector<double>>> eigen(MatrixXd A, int num = 2,
         tuple<double, VectorXd, int, vector<double>> eigens = powerIteration(A_copy, niter, epsilon);
         eigenvalues(i) = get<0>(eigens);
         eigenvectors.col(i) = get<1>(eigens);
-        vector<double> error = get<2>(eigens);
+        vector<double> error = get<3>(eigens);
         errores.push_back(error);
                     
         A_copy -= ((eigenvalues(i) * eigenvectors.col(i)) * eigenvectors.col(i).transpose());
